@@ -1,0 +1,161 @@
+#include <iostream>
+#include <stdio.h>
+#include <cstdio>
+#include <vector>
+#include <algorithm>
+#include <stack>
+#include <queue>
+
+using namespace std;
+int n, m, d;
+int ans;
+int map[16][16];
+int visit[16][16];
+int backup[16][16];// 초기 map값 저장해논거
+int del[16][16];// 삭제할 배열 정하기 
+int solider[15]; //궁수위치 저장
+int dir[3][2] = { {0,-1},{-1,0},{0,1} }; //이동가능 왼쪽 위 오른쪽 순으로 
+int ti; //while 돌려야 되는 총 시간 
+int realans; //진짜 답 한번 해보자 
+struct aa {
+	int x, y, cnt;
+	aa(int n1, int n2, int n3) :x(n1), y(n2), cnt(n3) {
+
+	}
+};
+queue <aa> q;
+void bfs() {
+	while (q.size() != 0) {
+		int _x = q.front().x;
+		int _y = q.front().y;
+		int _cnt = q.front().cnt;
+	//	printf("_x : %d _y : %d _cnt : %d\n", _x, _y, _cnt);
+		q.pop();
+		if (_cnt > d) {
+			return;
+		}
+		if (map[_x][_y] == 1) {
+			del[_x][_y] = 1;
+			return;
+		}
+		for (int i = 0; i < 3; i++) {
+			int dx = _x + dir[i][0];
+			int dy = _y + dir[i][1];
+			if (dx >= 1 && dx <= n && dy >= 1 && dy <= m) {
+			//	printf("dx : %d dy : %d\n", dx, dy);
+				if (visit[dx][dy] == 0) {
+					visit[dx][dy] = 1;
+					q.push(aa(dx, dy, _cnt + 1));
+				}
+			}
+		}
+	}
+}
+void _down() {
+	for (int j = 1; j <= m; j++) {
+		for (int i = n; i >= 1; i--) {
+			if (map[i][j] == 0) {
+				continue;
+			}
+			if (i == n) {
+				if (map[i][j] == 1) { map[i][j] = 0; }
+			}
+			else {
+				map[i + 1][j] = map[i][j];
+				map[i][j] = 0;
+			}
+		}
+	}
+}
+void calc() {
+	while (ti >= 0) {
+		ti--;
+		
+		for (int i = 0; i < m; i++) {
+			if (solider[i] == 1) {
+			//	printf("~~~~~~~~~~~~~~~~~~~~~~~~\n");
+				q.push(aa(n, i + 1, 1));
+				bfs();
+				
+				for (int i = 1; i <= n; i++) {
+					for (int j = 1; j <= m; j++) {
+						visit[i][j] = 0;
+					}
+				}
+				while (!q.empty()) { q.pop(); }
+			}
+		} //지울거 체크하엿다 
+
+		for (int i = 1; i <= n; i++) {
+			for (int j = 1; j <= m; j++) {
+				visit[i][j] = 0;
+		//		printf("%d ", del[i][j]);
+				if (del[i][j] == 1) {
+					ans++;
+					map[i][j] = 0;
+					del[i][j] = 0;
+				}
+				
+			}
+	//		printf("\n");
+		}//지울거 지우고 
+//		printf("================\n");
+		_down(); //배열 한칸 씩 내리기
+		//for (int i = 1; i <= n; i++) {
+	//		for (int j = 1; j <= m; j++) {
+	//			printf(" : %d", map[i][j]);
+	//		}printf("\n");
+	//	}
+		
+	}
+}
+int testtest;
+void dfs(int index, int cnt) {
+	if (cnt >= 3) { //만약 3명 궁수위치 정했으면 
+		ans = 0;
+		ti = n;//돌릴 시간 한번 보고 
+	//	printf("-----------------------\n");
+	//	for (int i = 0; i < m; i++) {
+	//		printf(" %d", solider[i]);
+	//	}
+	//	printf("\n");
+	//	printf("---------------------\n");
+		calc();
+		testtest++;
+		if (realans < ans) {
+			realans = ans;
+		} // 결과값 비교해보고 
+		for (int i = 1; i <= n; i++) {
+			for (int j = 1; j <= m; j++) {
+				map[i][j] = backup[i][j];
+			}
+		}//원래 맵 다시 바꾸고 
+		
+		//계산
+		return;
+	}
+	if (index >= m ) {
+		return;
+	}
+		solider[index] = 1;
+		dfs(index + 1, cnt + 1);
+		solider[index] = 0;
+		dfs(index + 1, cnt);
+
+}
+int main() {
+	int temp;
+	scanf("%d %d %d", &n, &m, &d);
+	for (int i = 1; i <= n; i++) {
+		for (int j = 1; j <= m; j++) {
+			scanf(" %d", &temp);
+			map[i][j] = temp;
+			backup[i][j] = temp;
+		}
+	} //맵과 backup그리기
+
+	dfs(0,0);//궁수위치찾기
+	
+	printf("%d ", realans);
+	return 0;
+}
