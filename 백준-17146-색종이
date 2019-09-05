@@ -1,0 +1,116 @@
+#include <iostream>
+#include <stdio.h>
+#include <cstdio>
+#include <vector>
+#include <algorithm>
+#include <stack>
+#include <queue>
+
+using namespace std;
+int map[11][11];
+int visit[11][11];
+int ans=987654321;
+bool _check(int x,int y,int cnt) {
+	for (int i = x; i <= x + cnt - 1; i++) {
+		for (int j = y; j <= y + cnt - 1; j++) {
+			if (i<1 || i> 10 || j<1 || j>10) {
+				return false;
+			}
+			if (visit[i][j] == 1 || map[i][j]==0) {
+				return false;
+			}
+		}
+	}
+	
+	return true;
+}
+void pill(int x, int y, int cnt) {
+	for (int i = x; i <= x + cnt - 1; i++) {
+		for (int j = y; j <= y + cnt - 1; j++) {
+			visit[i][j] = 1;
+		}
+	}
+}
+void recover(int x, int y, int cnt) {
+	for (int i = x; i <= x + cnt - 1; i++) {
+		for (int j = y; j <= y + cnt - 1; j++) {
+			visit[i][j] = 0;
+		}
+	}
+}
+void dfs(int x, int y, int a, int b, int c, int d, int e, int cnt) {
+	
+	//printf("x : %d y : %d\n", x, y);
+	int flag = 0;
+		for (int i = 1; i <= 10; i++) {
+			for (int j = 1; j <= 10; j++) {
+				if (map[i][j] == 1 && visit[i][j]==0) {
+					x = i;
+					y = j;
+					flag = 1;
+					break;
+				}
+			}
+			if (flag == 1) {
+				break;
+			}
+		}
+	if (flag == 0) { 
+		if (ans > cnt) { ans = cnt; }
+		if (cnt == 0) {	ans = 0;	}
+		return; 
+	}
+
+	if (e > 0 && _check(x,y,5)) {
+		pill(x,y,5);
+		//printf("test1\n");
+		dfs(x, y, a, b, c, d, e-1 , cnt + 1);
+		recover(x, y, 5);
+	}
+	if (d > 0 && _check(x, y, 4)) {
+		pill(x, y, 4);
+	//	printf("test2\n");
+		dfs(x, y, a, b, c, d-1, e , cnt + 1);
+		recover(x, y, 4);
+	}
+	if (c > 0 && _check(x, y, 3)) {
+		pill(x, y, 3);
+	//	printf("test3\n");
+		dfs(x, y, a, b, c-1, d , e, cnt + 1);
+		recover(x, y, 3);
+	}
+	if (b > 0 && _check(x, y, 2)) {
+		pill(x, y, 2);
+	//	printf("test4\n");
+		dfs(x, y, a, b-1, c, d , e, cnt + 1);
+		recover(x, y, 2);
+	}
+	if (a > 0 && _check(x, y, 1)) {
+		pill(x, y, 1);
+	//	printf("dfs돌기~\n");
+		dfs(x, y, a-1, b, c, d , e, cnt + 1);
+		recover(x, y, 1);
+	//	printf("이거 된다\n");
+	}
+	
+}
+int main() {
+	int temp;
+	for (int i = 1; i <= 10; i++) {
+		for (int j = 1; j <= 10; j++) {
+			scanf(" %d", &temp);
+			map[i][j] = temp;
+			visit[i][j] = 0;
+		}
+	}
+	
+	dfs(1, 1, 5, 5, 5, 5, 5, 0);
+	if (ans == 987654321) {
+		printf("-1\n");
+		return 0;
+	}
+	else {
+		printf("%d \n", ans);
+	}
+	return 0;
+}
