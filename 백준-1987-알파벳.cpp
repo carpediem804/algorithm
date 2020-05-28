@@ -1,47 +1,43 @@
-#include <stdio.h>
 #include <iostream>
-#include <string>
-
+#include <stdio.h>
+#include <vector>
+#include <algorithm>
 using namespace std;
-char map[21][21];
-char visit[401];
-int _x, _y;
+int R, C;
+int map[21][21];
+int visit[21][21];
+int check_[60];
 int dir[4][2] = { {-1,0},{1,0},{0,1},{0,-1} };
-int ans = 0;
-bool check(int num,char s) {
-	for (int i = 1; i <= num; i++) {
-		if (visit[i] == s) {
-			return false;
-		}
-	}
-	return true;
-} //넣을수 있는 지 체크 
+int ans;
 void dfs(int x, int y, int cnt) {
-//	printf("x : %d y : %d cnt : %d\n", x, y, cnt);
-	if (ans < cnt) {
-		ans = cnt;
-	}
-	visit[cnt] = map[x][y]; //방문했으니 visit배열에 추가
+	
+	check_[map[x][y] - 'A'] = 1;
+	cnt++;
+	//printf("x : %d y : %d cnt : %d\n", x, y, cnt);
+	ans = max(cnt, ans);
 	for (int i = 0; i < 4; i++) {
 		int dx = x + dir[i][0];
 		int dy = y + dir[i][1];
-		if (dx >= 1 && dx <= _x && dy >= 1 && dy <= _y) {
-			if (check(cnt, map[dx][dy])) { 
-				dfs(dx, dy, cnt + 1);
-				visit[cnt + 1] = 0;
-			}//방문을 안한 점이라면  dfs돌리고 dfs 끝낫을때 visit 그거 초기화 
+		if (dx >= 1 && dx <= R && dy >= 1 && dy <= C &&visit[dx][dy]==0 && check_[map[dx][dy] - 'A'] ==0) {
+			visit[dx][dy] = 1;
+			check_[map[dx][dy] - 'A'] = 1;
+			dfs(dx, dy, cnt);
+			visit[dx][dy] = 0;
+			check_[map[dx][dy] - 'A'] = 0;
 		}
 	}
 }
 int main(void) {
-	scanf("%d %d", &_x, &_y);
-	for (int i = 1; i <= _x; i++) {
-		for (int j = 1; j <= _y; j++) {
-			scanf(" %1c", &map[i][j]);
-			//printf("%c ", map[i][j]);
-		}//printf("\n");
+	scanf("%d %d ", &R, &C);
+	for (int x = 1; x <= R; x++) {
+		for (int y = 1; y <= C; y++) {
+			scanf(" %1c", &map[x][y]);
+		}
 	}
-	dfs(1, 1, 1);
-	printf("%d", ans);
+	visit[1][1] = 1;
+	check_[map[1][1] - 'A'] = 1;
+	dfs(1, 1, 0);
+	printf("%d\n",ans);
+
 	return 0;
 }
