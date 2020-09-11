@@ -17,6 +17,9 @@ public:
         for(int i=0;i<10;i++){
             ball_num += min(secret_num[i],guess_num[i]);
         }
+        
+        
+        
         string ans ="";
         ans +=to_string(strike_num);
         ans += "A";
